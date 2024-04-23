@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.security.SecurityPermission;
+import java.util.Random;
 
 public class SnakeGame extends JPanel{
     private class Tile {
@@ -14,7 +16,13 @@ public class SnakeGame extends JPanel{
     int boardWidth, boardHeight;
     int tileSize = 12; // 格子邊長
 
+    // 蛇
     Tile snakehead;
+
+    // 水果
+    Tile fruit;
+
+    Random random; // 建立 random 物件
 
     SnakeGame(int boardWidth, int boardHeight){
         this.boardHeight = boardHeight;
@@ -23,6 +31,10 @@ public class SnakeGame extends JPanel{
         setBackground(Color.BLACK);
 
         snakehead = new Tile((int)Math.sqrt(tileSize) , (int)Math.sqrt(tileSize) );
+
+        fruit = new Tile(10, 10);
+        random = new Random();
+        placeFruit();
     }
     public void paintComponent(Graphics g){
         super.paintComponent(g);
@@ -34,8 +46,18 @@ public class SnakeGame extends JPanel{
             g.drawLine(i * tileSize, 0, i * tileSize, boardHeight); // 垂直線
             g.drawLine(0, i * tileSize, boardWidth, i * tileSize); // 水平線
         }
+
         // 畫出蛇
         g.setColor(Color.green);
         g.fillRect(snakehead.x * tileSize, snakehead.y * tileSize, tileSize, tileSize);
+
+        // 畫出水果
+        g.setColor(Color.red);
+        g.fillRect(fruit.x * tileSize, fruit.y * tileSize, tileSize, tileSize);
+    }
+
+    public void placeFruit(){
+        fruit.x = random.nextInt(boardWidth / tileSize);
+        fruit.y = random.nextInt(boardWidth / tileSize);
     }
 }
