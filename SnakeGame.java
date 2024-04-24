@@ -1,7 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Random;
+import java.util.*;
+import javax.swing.Timer;
 
 public class SnakeGame extends JPanel implements ActionListener, KeyListener{
     private class Tile {
@@ -18,6 +19,7 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
 
     // 蛇
     Tile snakehead;
+    ArrayList<Tile> snakebody;
 
     // 水果
     Tile fruit;
@@ -26,7 +28,9 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
 
     // 讓遊戲不斷刷新
     Timer gameloop;
+    int speed = 100;
     int velocityX, velocityY;
+    boolean gameover = false;
 
     SnakeGame(int boardWidth, int boardHeight){
         this.boardHeight = boardHeight;
@@ -37,6 +41,7 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
         setFocusable(true);
 
         snakehead = new Tile((int)Math.sqrt(tileSize) , (int)Math.sqrt(tileSize) );
+        snakebody = new ArrayList<Tile>();
 
         fruit = new Tile(10, 10);
         random = new Random();
@@ -45,8 +50,11 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
         velocityX = 0;
         velocityY = 1;
 
-        gameloop = new Timer(100, this); // 100 ms
+        gameloop = new Timer(speed, this); // 100 ms
         gameloop.start();
+    }
+    public boolean collision(Tile tile1, Tile tile2){
+        return tile1.x == tile2.x && tile1.y == tile2.y; // 確認兩的點有沒有重疊
     }
     public void paintComponent(Graphics g){
         super.paintComponent(g);
@@ -54,18 +62,32 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
     }
     public void draw(Graphics g){
         // 格線
-        for(int i = 0 ; i < boardWidth / tileSize ; i++){
-            g.drawLine(i * tileSize, 0, i * tileSize, boardHeight); // 垂直線
-            g.drawLine(0, i * tileSize, boardWidth, i * tileSize); // 水平線
-        }
-
-        // 畫出蛇
-        g.setColor(Color.green);
-        g.fillRect(snakehead.x * tileSize, snakehead.y * tileSize, tileSize, tileSize);
-
+        // for(int i = 0 ; i < boardWidth / tileSize ; i++){
+        //     g.drawLine(i * tileSize, 0, i * tileSize, boardHeight); // 垂直線
+        //     g.drawLine(0, i * tileSize, boardWidth, i * tileSize); // 水平線
+        // }
         // 畫出水果
         g.setColor(Color.red);
-        g.fillRect(fruit.x * tileSize, fruit.y * tileSize, tileSize, tileSize);
+        g.fill3DRect(fruit.x * tileSize, fruit.y * tileSize, tileSize, tileSize, true);
+
+        // 畫出 snakehead
+        g.setColor(Color.green);
+        g.fill3DRect(snakehead.x * tileSize, snakehead.y * tileSize, tileSize, tileSize, true);
+        // snakebody
+        for(int i = 0 ; i < snakebody.size() ; i++){
+            Tile snakePart = snakebody.get(i);
+            g.fill3DRect(snakePart.x * tileSize, snakePart.y * tileSize, tileSize, tileSize, true);
+        }
+
+        // score
+        g.setFont(new Font("Arial", Font.PLAIN, 16));
+        if(gameover){
+            g.setColor(Color.red);
+            g.drawString("Game Over: " + String.valueOf(snakebody.size()), tileSize, tileSize + 16);
+        }
+        else{
+            g.drawString("Score: " + String.valueOf(snakebody.size()), tileSize, tileSize + 16);
+        }
     }
 
     public void placeFruit(){
@@ -76,29 +98,61 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
     public void actionPerformed(ActionEvent e) {
         move(); // 更新蛇的位置
         repaint(); // 不斷呼叫 draw 函式
+        if(gameover){
+            gameloop.stop();
+        }
     }
     public void move(){
+        if(collision(snakehead, fruit)){ // 如果蛇吃到水果
+            snakebody.add(new Tile(fruit.x, fruit.y));
+            placeFruit();
+        }
+        // 先移動body再移動head，不然list[0]不知道要移動到哪裡
+        // snakebody
+        for(int i = snakebody.size() - 1 ; i >= 0 ; i--){
+            Tile snakePart = snakebody.get(i);
+            if(i == 0){
+                snakePart.x = snakehead.x;
+                snakePart.y = snakehead.y;
+            }
+            else{
+                Tile prevSnakePart = snakebody.get(i - 1);
+                snakePart.x = prevSnakePart.x;
+                snakePart.y = prevSnakePart.y;
+            }
+        }
         // snakehead
         snakehead.x += velocityX;
         snakehead.y += velocityY;
+
+        // gameover
+        for(int i = 0 ; i < snakebody.size() ; i++){
+            Tile snakePart = snakebody.get(i);
+            if(collision(snakehead, snakePart)) gameover = true;
+        }
+        
+        //撞牆遊戲結束
+        if(snakehead.x * tileSize < 0 || snakehead.x * tileSize > boardWidth || snakehead.y * tileSize < 0 || snakehead.y > boardHeight){
+            gameover = true;
+        }
     }
     @Override
     public void keyTyped(KeyEvent e) {}
     @Override
     public void keyPressed(KeyEvent e) {
-        if(e.getKeyCode() == KeyEvent.VK_UP){
+        if(e.getKeyCode() == KeyEvent.VK_UP && velocityY != 1){
             velocityX = 0;
             velocityY = -1;
         }
-        else if(e.getKeyCode() == KeyEvent.VK_DOWN){
+        else if(e.getKeyCode() == KeyEvent.VK_DOWN && velocityY != -1){
             velocityX = 0;
             velocityY = 1;
         }
-        else if(e.getKeyCode() == KeyEvent.VK_LEFT){
+        else if(e.getKeyCode() == KeyEvent.VK_LEFT && velocityX != 1){
             velocityX = -1;
             velocityY = 0;
         }
-        else if(e.getKeyCode() == KeyEvent.VK_RIGHT){
+        else if(e.getKeyCode() == KeyEvent.VK_RIGHT && velocityX != -1){
             velocityX = 1;
             velocityY = 0;
         }
