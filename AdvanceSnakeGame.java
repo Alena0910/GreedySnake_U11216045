@@ -33,7 +33,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
     Random random; // 建立 random 物件
 
     // 讓遊戲不斷刷新
-    Timer gameloop, sec;
+    Timer gameloop, sec, repaintTimer;
     int speed = 128;
     int velocityX, velocityY;
     boolean gameover = false;
@@ -63,7 +63,22 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
         velocityX = 0;
         velocityY = 1;
 
-        gameloop = new Timer(speed, this); // 100 ms
+        repaintTimer = new Timer(100, this);
+        repaintTimer.start();
+
+        gameloop = new Timer(speed, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                move(); // 更新蛇的位置
+                if(gameover){
+                    gameloop.stop();
+                    repaintTimer.stop();
+                    sec.stop();
+                    if(!openGameoverFrame)GameOverFrame.openGameOverFrame(2, frame, win, score, boardWidth, boardHeight);
+                    openGameoverFrame = true;
+                }
+            }
+        });
         gameloop.start();
 
         sec = new Timer(1000, new ActionListener(){
@@ -150,14 +165,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-        move(); // 更新蛇的位置
         repaint(); // 不斷呼叫 draw 函式
-        if(gameover){
-            gameloop.stop();
-            sec.stop();
-            if(!openGameoverFrame)GameOverFrame.openGameOverFrame(2, frame, win, score, boardWidth, boardHeight);
-            openGameoverFrame = true;
-        }
     }
     public void move(){
         if(collision(snakehead, fruit)){ // 如果蛇吃到水果
@@ -180,8 +188,8 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
                     if(snakebody.size() > 0) snakebody.remove(snakebody.size() - 1);
                     break;
                 case 3:
-                    // 蛇速度減少40
-                    speed -= 40;
+                    // 蛇速度減少20
+                    speed -= 20;
                     if(speed < 0){
                         gameover = true;
                     }
