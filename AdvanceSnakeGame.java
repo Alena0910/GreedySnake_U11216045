@@ -6,8 +6,6 @@ import javax.swing.Timer;
 
 public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListener{
     
-    private JFrame frame;
-    
     private class Tile {
         int x, y;
 
@@ -45,7 +43,6 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
     RandomMode mode = new RandomMode();
 
     AdvanceSnakeGame(JFrame frame, int boardWidth, int boardHeight){
-        this.frame = frame;
         this.boardHeight = boardHeight;
         this.boardWidth = boardWidth;
         setPreferredSize(new Dimension(this.boardWidth, this.boardHeight));
@@ -90,7 +87,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
                 }
 
                 // 讓水果移動
-                if(mode.getMode() == 5){
+                if(mode.getMode() == 4){
                     if(fruit.x * tileSize < 0 || fruit.x * tileSize > boardWidth || fruit.y * tileSize < 0 || fruit.y * tileSize > boardHeight){
                         placeFruit();
                     }
@@ -157,7 +154,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
         fruit.x = random.nextInt(boardWidth / tileSize);
         fruit.y = random.nextInt(boardWidth / tileSize);
         mode.setMode(); // 隨機設定水果顏色及遊戲模式
-        if(mode.getMode() == 5){
+        if(mode.getMode() == 4){
             fruitMoveDirectionX = direction[random.nextInt(8) * 2];
             fruitMoveDirectionY = direction[random.nextInt(8) * 2 + 1];
         }
@@ -188,19 +185,11 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
                     if(snakebody.size() > 0) snakebody.remove(snakebody.size() - 1);
                     break;
                 case 3:
-                    // 蛇速度減少20
-                    speed -= 20;
-                    if(speed < 0){
-                        gameover = true;
-                    }
-                    else gameloop.setDelay(speed);
-                    break;
-                case 4:
                     // 蛇身體清空
                     score.resetScore();
                     snakebody.clear();
                     break;
-                case 5:
+                case 4:
                     // 水果移動
                     score.addScore();
                     snakebody.add(new Tile(fruit.x, fruit.y));

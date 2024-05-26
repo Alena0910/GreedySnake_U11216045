@@ -34,8 +34,8 @@ public class RandomMode {
 
     public void setMode(){
         SecureRandom sr = new SecureRandom();
-        mode = sr.nextInt(6);
-        fruitColor = sr.nextInt(20);
+        mode = sr.nextInt(5);
+        fruitColor = sr.nextInt(18);
     }
 
     public int getMode(){
