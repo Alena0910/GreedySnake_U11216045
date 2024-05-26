@@ -121,6 +121,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
         //     g.drawLine(i * tileSize, 0, i * tileSize, boardHeight); // 垂直線
         //     g.drawLine(0, i * tileSize, boardWidth, i * tileSize); // 水平線
         // }
+
         // 畫出水果
         g.setColor(mode.getFruitColor());
         g.fill3DRect(fruit.x * tileSize, fruit.y * tileSize, tileSize, tileSize, true);
@@ -176,7 +177,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
                     break;
                 case 1:
                     // 蛇速度加倍
-                    speed *= 2;
+                    speed /= 2;
                     gameloop.setDelay(speed);
                     break;
                 case 2:
@@ -230,7 +231,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
         }
         
         //撞牆遊戲結束
-        if(snakehead.x * tileSize < 0 || snakehead.x * tileSize > boardWidth || snakehead.y * tileSize < 0 || snakehead.y * tileSize > boardHeight){
+        if(snakehead.x * tileSize < -tileSize || snakehead.x * tileSize > boardWidth || snakehead.y * tileSize < -tileSize || snakehead.y * tileSize > boardHeight){
             gameover = true;
         }
     }
