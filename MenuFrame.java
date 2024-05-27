@@ -4,25 +4,26 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class MenuFrame {
-    public static void openMenuFrame(int boardWidth, int boardHeight){
+    public static void openMenuFrame(String username, int boardWidth, int boardHeight){
         JFrame menuFrame = new JFrame("Menu");
         menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        menuFrame.setSize(300, 200);
+        menuFrame.setSize(400, 300);
         menuFrame.setLayout(new GridBagLayout());
         menuFrame.setLocationRelativeTo(null);
         menuFrame.setResizable(false);
 
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
-        panel.setPreferredSize(new Dimension(300, 200));
+        panel.setPreferredSize(new Dimension(400, 300));
         panel.setBackground(new Color(5, 16, 20));
 
 
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridy = GridBagConstraints.RELATIVE;
         gbc.insets = new Insets(10, 0, 10, 0);
+        gbc.anchor = GridBagConstraints.CENTER;
 
 
         JButton normal = new JButton("正常版");
@@ -41,14 +42,23 @@ public class MenuFrame {
         advance.setBackground(new Color(71, 108, 155));
         advance.setBorder(new LineBorder(new Color(71, 108, 155), 3));
 
+        JButton rankingList = new JButton("排行榜");
+        rankingList.setFont(new Font("微軟正黑體", Font.BOLD, 16));
+        rankingList.setContentAreaFilled(true);
+        rankingList.setForeground(Color.BLACK);
+        rankingList.setPreferredSize(new Dimension(100, 50));
+        rankingList.setBackground(new Color(204, 213, 255));
+        rankingList.setBorder(new LineBorder(new Color(204, 213, 255), 3));
+
+
         panel.add(normal, gbc);
-        gbc.gridy++;
         panel.add(advance, gbc);
+        panel.add(rankingList, gbc);
 
         normal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e){
-                Main.openSnakeGame(boardWidth, boardHeight);
+                Main.openSnakeGame(username, boardWidth, boardHeight);
                 menuFrame.setVisible(false);
             }
         });
@@ -74,7 +84,7 @@ public class MenuFrame {
         advance.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e){
-                Main.openAdvanceGame(boardWidth, boardHeight);
+                Main.openAdvanceGame(username, boardWidth, boardHeight);
             }
         });
 
@@ -95,6 +105,13 @@ public class MenuFrame {
             public void mousePressed(MouseEvent e) {}
             @Override
             public void mouseReleased(MouseEvent e) {}
+        });
+
+        rankingList.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e){
+                RankingList.openRankingList(username, boardWidth, boardHeight);
+            }
         });
         
         menuFrame.add(panel);

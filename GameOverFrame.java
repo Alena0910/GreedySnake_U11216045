@@ -3,7 +3,10 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class GameOverFrame {
-    public static void openGameOverFrame(int GameMode, JFrame frame, boolean win, Score score, int boardWidth, int boardHeight){
+    public static void openGameOverFrame(String username, int GameMode, JFrame frame, boolean win, Score score, int boardWidth, int boardHeight){
+
+        RankingList.rewriteRankingList(GameMode, username, score.getScore());
+
         JFrame Ending = new JFrame("Game Over");
         Ending.setSize(300, 350);
         Ending.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -40,8 +43,8 @@ public class GameOverFrame {
         restart.addActionListener(new ActionListener(){ // 重新開始遊戲
             public void actionPerformed(ActionEvent e){
                 Ending.dispose();
-                if(GameMode == 1)Main.openSnakeGame(boardWidth, boardHeight); // 開啟正常版遊戲(重新開始
-                else if(GameMode == 2)Main.openAdvanceGame(boardWidth, boardHeight);
+                if(GameMode == 1)Main.openSnakeGame(username, boardWidth, boardHeight); // 開啟正常版遊戲(重新開始
+                else if(GameMode == 2)Main.openAdvanceGame(username, boardWidth, boardHeight);
                 frame.dispose();
             }
         });
@@ -65,7 +68,7 @@ public class GameOverFrame {
         moreOption.addActionListener(new ActionListener(){ // 更多選項
             public void actionPerformed(ActionEvent e){
                 Ending.dispose();
-                MenuFrame.openMenuFrame(boardWidth, boardHeight);
+                MenuFrame.openMenuFrame(username, boardWidth, boardHeight);
                 frame.dispose();
             }
         });

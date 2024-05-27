@@ -42,7 +42,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
     FruitCounter counter = new FruitCounter();
     RandomMode mode = new RandomMode();
 
-    AdvanceSnakeGame(JFrame frame, int boardWidth, int boardHeight){
+    AdvanceSnakeGame(String username, JFrame frame, int boardWidth, int boardHeight){
         this.boardHeight = boardHeight;
         this.boardWidth = boardWidth;
         setPreferredSize(new Dimension(this.boardWidth, this.boardHeight));
@@ -71,7 +71,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
                     gameloop.stop();
                     repaintTimer.stop();
                     sec.stop();
-                    if(!openGameoverFrame)GameOverFrame.openGameOverFrame(2, frame, win, score, boardWidth, boardHeight);
+                    if(!openGameoverFrame)GameOverFrame.openGameOverFrame(username, 2, frame, win, score, boardWidth, boardHeight);
                     openGameoverFrame = true;
                 }
             }

@@ -7,6 +7,7 @@ import javax.swing.Timer;
 public class SnakeGame extends JPanel implements ActionListener, KeyListener{
 
     private JFrame frame;
+    private String username;
 
     private class Tile {
         int x, y;
@@ -38,7 +39,8 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
 
     Score score = new Score();
 
-    SnakeGame(JFrame frame, int boardWidth, int boardHeight){
+    SnakeGame(String username, JFrame frame, int boardWidth, int boardHeight){
+        this.username = username;
         this.frame = frame;
         this.boardHeight = boardHeight;
         this.boardWidth = boardWidth;
@@ -108,7 +110,7 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
         repaint(); // 不斷呼叫 draw 函式
         if(gameover){
             gameloop.stop();
-            if(!openGameoverFrame)GameOverFrame.openGameOverFrame(1, frame, false, score, boardWidth, boardHeight);
+            if(!openGameoverFrame) GameOverFrame.openGameOverFrame(username, 1, frame, false, score, boardWidth, boardHeight);
             openGameoverFrame = true;
         }
     }
