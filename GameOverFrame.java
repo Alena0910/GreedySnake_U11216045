@@ -3,9 +3,10 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class GameOverFrame {
-    public static void openGameOverFrame(String username, int GameMode, JFrame frame, boolean win, Score score, int boardWidth, int boardHeight){
+    public static void openGameOverFrame(String username, int GameMode, JFrame frame, boolean win, Score score, int highestScore, int boardWidth, int boardHeight){
 
         RankingList.rewriteRankingList(GameMode, username, score.getScore());
+        if(GameMode == 2) RankingList.rewriteRankingList(3, username, highestScore);
 
         JFrame Ending = new JFrame("Game Over");
         Ending.setSize(300, 350);

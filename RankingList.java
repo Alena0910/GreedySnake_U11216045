@@ -7,8 +7,8 @@ import java.io.*;
 public class RankingList {
 
     private static final String[] columnNames = {"Rank", "Username", "Score"};
-    private static String[] rank1name = new String[10], rank2name = new String[10];
-    private static int[] rank1score = new int[10], rank2score = new int[10];
+    private static String[] rank1name = new String[10], rank2name = new String[10], rank3name = new String[10];
+    private static int[] rank1score = new int[10], rank2score = new int[10], rank3score = new int[10];
 
     private static Color transparent = new Color(0, 0, 0, 0);
 
@@ -51,14 +51,17 @@ public class RankingList {
 
         JTable table1 = createTable();
         JTable table2 = createTable();
+        JTable table3 = createTable();
 
         tabbedPane.add("基本版排名", createTablePanel("基本版排名", table1));
         tabbedPane.add("愚人節版排名", createTablePanel("愚人節版排名", table2));
+        tabbedPane.add("愚人節版最高分數排名", createTablePanel("愚人節版最高分數排名", table3));
 
         panel.add(tabbedPane, gbc);
 
         readRankingList(table1, 1);
         readRankingList(table2, 2);
+        readRankingList(table3, 3);
 
         frame.getContentPane().setBackground(transparent);
         frame.add(panel);
@@ -134,7 +137,7 @@ public class RankingList {
     }
 
     public static void readRankingList(JTable table, int game){
-        String filename = game == 1 ? "RankingListSnakeGame.txt" : "RankingListAdvance.txt";
+        String filename = game == 1 ? "RankingListSnakeGame.txt" : (game == 2 ? "RankingListAdvance.txt" : "RankingListAdvanceHighestScore.txt");
         String[] name = new String[10];
         int[] scoreList = new int[10];
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);        
@@ -160,9 +163,14 @@ public class RankingList {
             if(game == 1){
                 rank1name = name;
                 rank1score = scoreList;
-            } else {
+            } 
+            else if(game == 2){
                 rank2name = name;
                 rank2score = scoreList;
+            }
+            else{
+                rank3name = name;
+                rank3score = scoreList;
             }
             br.close();
         } catch(IOException e){
@@ -171,9 +179,9 @@ public class RankingList {
     }
 
     public static void rewriteRankingList(int game, String username, int score){
-        String filename = game == 1 ? "RankingListSnakeGame.txt" : "RankingListAdvance.txt";
-        String[] name = game == 1 ? rank1name : rank2name;
-        int[] scoreList = game == 1 ? rank1score : rank2score;
+        String filename = game == 1 ? "RankingListSnakeGame.txt" : (game == 2 ? "RankingListAdvance.txt" : "RankingListAdvanceHighestScore.txt");
+        String[] name = game == 1 ? rank1name : (game == 2 ? rank2name : rank3name);
+        int[] scoreList = game == 1 ? rank1score : (game == 2 ? rank2score : rank3score);
         try{
             BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
             for(int i = 0; i < 10; i++){

@@ -110,7 +110,7 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
         repaint(); // 不斷呼叫 draw 函式
         if(gameover){
             gameloop.stop();
-            if(!openGameoverFrame) GameOverFrame.openGameOverFrame(username, 1, frame, false, score, boardWidth, boardHeight);
+            if(!openGameoverFrame) GameOverFrame.openGameOverFrame(username, 1, frame, false, score, -1, boardWidth, boardHeight);
             openGameoverFrame = true;
         }
     }

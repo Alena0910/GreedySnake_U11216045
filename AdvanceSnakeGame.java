@@ -39,6 +39,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
     boolean openGameoverFrame = false;
 
     Score score = new Score();
+    int hightestScore = 0;
     FruitCounter counter = new FruitCounter();
     RandomMode mode = new RandomMode();
 
@@ -49,6 +50,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
 
         addKeyListener(this);
         setFocusable(true);
+        requestFocus();
 
         snakehead = new Tile((int)Math.sqrt(tileSize) , (int)Math.sqrt(tileSize) );
         snakebody = new ArrayList<Tile>();
@@ -71,7 +73,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
                     gameloop.stop();
                     repaintTimer.stop();
                     sec.stop();
-                    if(!openGameoverFrame)GameOverFrame.openGameOverFrame(username, 2, frame, win, score, boardWidth, boardHeight);
+                    if(!openGameoverFrame) GameOverFrame.openGameOverFrame(username, 2, frame, win, score, hightestScore, boardWidth, boardHeight);
                     openGameoverFrame = true;
                 }
             }
@@ -147,7 +149,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
             g.drawString("Game Over: " + score.getScore(), tileSize, tileSize + 16);
         }
         else{
-            g.drawString("Score: " + score.getScore(), tileSize, tileSize + 16);
+            g.drawString("Score: " + score.getScore() + " Highest Score: " + hightestScore, tileSize, tileSize + 16);
         }
     }
 
@@ -198,10 +200,10 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
                 default:
                     break;
             }
+            hightestScore = Math.max(hightestScore, score.getScore());
             if(score.getScore() < 0) gameover = true; // 分數小於0遊戲結束
             else if(score.getScore() >= 10){ // 分數大於等於10遊戲勝利
                 win = true;
-                gameover = true;
             }
             placeFruit();
         }
