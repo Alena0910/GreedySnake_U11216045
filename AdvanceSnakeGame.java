@@ -73,7 +73,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
                     gameloop.stop();
                     repaintTimer.stop();
                     sec.stop();
-                    if(!openGameoverFrame) GameOverFrame.openGameOverFrame(username, 2, frame, win, score, hightestScore, boardWidth, boardHeight);
+                    if(!openGameoverFrame) GameOverFrame.openGameOverFrame(username, 2, frame, win, score, null, hightestScore, boardWidth, boardHeight);
                     openGameoverFrame = true;
                 }
             }
@@ -149,7 +149,8 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
             g.drawString("Game Over: " + score.getScore(), tileSize, tileSize + 16);
         }
         else{
-            g.drawString("Score: " + score.getScore() + " Highest Score: " + hightestScore, tileSize, tileSize + 16);
+            g.setColor(new Color(22, 244, 208));
+            g.drawString("Score: " + score.getScore() + "  Highest Score: " + hightestScore, tileSize, tileSize + 16);
         }
     }
 
@@ -233,7 +234,7 @@ public class AdvanceSnakeGame extends JPanel implements ActionListener, KeyListe
         }
         
         //撞牆遊戲結束
-        if(snakehead.x * tileSize < -tileSize || snakehead.x * tileSize > boardWidth || snakehead.y * tileSize < -tileSize || snakehead.y * tileSize > boardHeight){
+        if(snakehead.x * tileSize < 0 || snakehead.x * tileSize > boardWidth || snakehead.y * tileSize < 0 || snakehead.y * tileSize > boardHeight){
             gameover = true;
         }
     }

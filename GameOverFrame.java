@@ -3,13 +3,44 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class GameOverFrame {
-    public static void openGameOverFrame(String username, int GameMode, JFrame frame, boolean win, Score score, int highestScore, int boardWidth, int boardHeight){
 
-        RankingList.rewriteRankingList(GameMode, username, score.getScore());
-        if(GameMode == 2) RankingList.rewriteRankingList(3, username, highestScore);
+    private static String[] fruitColor = {"red=", "orange=", "yellow=", "green=", "blue="};
+
+    public static void openGameOverFrame(String username, int GameMode, JFrame frame, boolean win, Score score, int[] mission, int highestScore, int boardWidth, int boardHeight){
+
+        if(GameMode <= 2){
+            RankingList.readRankingList(GameMode);
+            RankingList.rewriteRankingList(GameMode, username, score.getScore(), win);
+        }
+        if(GameMode == 2){
+            RankingList.readRankingList(3);
+            RankingList.rewriteRankingList(3, username, highestScore, win);
+        }
+        if(GameMode == 4){
+            RankingList.readRankingList(4);
+            RankingList.rewriteRankingList(4, username, highestScore, win);
+        }
+
+        String labelText = "";
+        if(GameMode == 4 && win){
+            labelText = "You Win! Mission Completed!";
+        }
+        else if(GameMode == 4){
+            labelText = "Game Over! Mission Uncompleted: ";
+            for(int i = 0 ; i < 5 ; i++){
+                if(mission[i] == 0) continue;
+                labelText += fruitColor[i] + RandomMission.mission[i] + " ";
+            }
+        }
+        else if(GameMode == 2 && win){
+            labelText = "You Win!";
+        }
+        else{
+            labelText = "Game Over:  " + score.getScore();
+        }
 
         JFrame Ending = new JFrame("Game Over");
-        Ending.setSize(300, 350);
+        Ending.setSize(700, 350);
         Ending.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Ending.setLocationRelativeTo(null);
         Ending.setResizable(false);
@@ -18,7 +49,7 @@ public class GameOverFrame {
         JPanel EndingPanel = new JPanel();
         EndingPanel.setLayout(new GridBagLayout());   
         EndingPanel.setBackground(new Color(5, 16, 20));
-        EndingPanel.setPreferredSize(new Dimension(300, 200));
+        EndingPanel.setPreferredSize(new Dimension(700, 350));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -29,12 +60,7 @@ public class GameOverFrame {
         JLabel label = new JLabel();
         label.setFont(new Font("微軟正黑體", Font.BOLD, 16));
         label.setForeground(Color.WHITE);
-        if(win){
-            label.setText("You Win!");
-        }
-        else{
-            label.setText("Game Over:  " + score.getScore());
-        }
+        label.setText(labelText);
 
         JButton restart = new JButton("Restart");
         restart.setFont(new Font("微軟正黑體", Font.BOLD, 16));
@@ -44,8 +70,9 @@ public class GameOverFrame {
         restart.addActionListener(new ActionListener(){ // 重新開始遊戲
             public void actionPerformed(ActionEvent e){
                 Ending.dispose();
-                if(GameMode == 1)Main.openSnakeGame(username, boardWidth, boardHeight); // 開啟正常版遊戲(重新開始
-                else if(GameMode == 2)Main.openAdvanceGame(username, boardWidth, boardHeight);
+                if(GameMode == 1) Main.openSnakeGame(username, boardWidth, boardHeight); // 開啟正常版遊戲(重新開始
+                else if(GameMode == 2) Main.openAdvanceGame(username, boardWidth, boardHeight);
+                else if(GameMode == 4) Main.openMissionGame(username, boardWidth, boardHeight);
                 frame.dispose();
             }
         });
