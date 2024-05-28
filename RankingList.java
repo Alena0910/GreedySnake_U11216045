@@ -7,8 +7,10 @@ import java.io.*;
 public class RankingList {
 
     private static final String[] columnNames = {"Rank", "Username", "Score"};
-    private static String[] rank1name = new String[10], rank2name = new String[10], rank3name = new String[10];
-    private static int[] rank1score = new int[10], rank2score = new int[10], rank3score = new int[10];
+    private static final String[] columnMissionNames = {"Rank", "Username", "Total Time"};
+    private static final String[] textures = {"RankingListSnakeGame.txt", "RankingListAdvance.txt", "RankingListAdvanceHighestScore.txt", "RankingListMission.txt"};
+    private static String[] rankName = new String[10];
+    private static int[] rankScore = new int[10];
 
     private static Color transparent = new Color(0, 0, 0, 0);
 
@@ -52,16 +54,19 @@ public class RankingList {
         JTable table1 = createTable();
         JTable table2 = createTable();
         JTable table3 = createTable();
+        JTable table4 = createTable();
 
         tabbedPane.add("基本版排名", createTablePanel("基本版排名", table1));
         tabbedPane.add("愚人節版排名", createTablePanel("愚人節版排名", table2));
         tabbedPane.add("愚人節版最高分數排名", createTablePanel("愚人節版最高分數排名", table3));
+        tabbedPane.add("任務版排名", createTablePanel("任務版排名", table4));
 
         panel.add(tabbedPane, gbc);
 
         readRankingList(table1, 1);
         readRankingList(table2, 2);
         readRankingList(table3, 3);
+        readRankingList(table4, 4);
 
         frame.getContentPane().setBackground(transparent);
         frame.add(panel);
@@ -137,10 +142,10 @@ public class RankingList {
     }
 
     public static void readRankingList(JTable table, int game){
-        String filename = game == 1 ? "RankingListSnakeGame.txt" : (game == 2 ? "RankingListAdvance.txt" : "RankingListAdvanceHighestScore.txt");
+        String filename = textures[game - 1];
         String[] name = new String[10];
         int[] scoreList = new int[10];
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);        
+        DefaultTableModel model = new DefaultTableModel((game == 4)? columnMissionNames : columnNames, 0);        
         table.setModel(model);
         try{
             BufferedReader br = new BufferedReader(new FileReader(filename));
@@ -156,43 +161,81 @@ public class RankingList {
             }
             while(counter < 10){
                 name[counter] = "N/A";
-                scoreList[counter] = 0;
+                scoreList[counter] = (game == 4)? Integer.MAX_VALUE : 0;
                 model.addRow(new Object[]{counter + 1, name[counter], scoreList[counter]});
                 counter++;
             }
-            if(game == 1){
-                rank1name = name;
-                rank1score = scoreList;
-            } 
-            else if(game == 2){
-                rank2name = name;
-                rank2score = scoreList;
-            }
-            else{
-                rank3name = name;
-                rank3score = scoreList;
-            }
+            rankName = name;
+            rankScore = scoreList;
             br.close();
         } catch(IOException e){
             e.printStackTrace();
         }
     }
 
-    public static void rewriteRankingList(int game, String username, int score){
-        String filename = game == 1 ? "RankingListSnakeGame.txt" : (game == 2 ? "RankingListAdvance.txt" : "RankingListAdvanceHighestScore.txt");
-        String[] name = game == 1 ? rank1name : (game == 2 ? rank2name : rank3name);
-        int[] scoreList = game == 1 ? rank1score : (game == 2 ? rank2score : rank3score);
+
+    public static void readRankingList(int game){
+        String filename = textures[game - 1];
+        String[] name = new String[10];
+        int[] scoreList = new int[10];
+        try{
+            BufferedReader br = new BufferedReader(new FileReader(filename));
+            String line;
+            int counter = 0;
+            while((line = br.readLine()) != null){
+                if(counter >= 10) break;
+                name[counter] = line;
+                line = br.readLine();
+                scoreList[counter] = Integer.parseInt(line);
+                counter++;
+            }
+            while(counter < 10){
+                name[counter] = "N/A";
+                scoreList[counter] = (game == 4)? Integer.MAX_VALUE : 0;
+                counter++;
+            }
+            rankName = name;
+            rankScore = scoreList;
+            br.close();
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void rewriteRankingList(int game, String username, int score, boolean win){
+        String filename = textures[game - 1];
+        String[] name = rankName;
+        int[] scoreList = rankScore;
         try{
             BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
-            for(int i = 0; i < 10; i++){
-                if(score > scoreList[i]){
-                    for(int j = 9; j > i; j--){
-                        name[j] = name[j - 1];
-                        scoreList[j] = scoreList[j - 1];
+            if(score > 0){
+                if(game == 4){
+                    for(int i = 0; i < 10; i++){
+                        if(!win) break;
+                        if(scoreList[i] == Integer.MAX_VALUE || score < scoreList[i]){
+                            for(int j = 9; j > i; j--){
+                                name[j] = name[j - 1];
+                                scoreList[j] = scoreList[j - 1];
+                            }
+                            name[i] = username;
+                            scoreList[i] = score;
+                            break;
+                        }
                     }
-                    name[i] = username;
-                    scoreList[i] = score;
-                    break;
+                }
+                else{
+                    for(int i = 0; i < 10; i++){
+                        if(score > scoreList[i]){
+                            for(int j = 9; j > i; j--){
+                                name[j] = name[j - 1];
+                                scoreList[j] = scoreList[j - 1];
+                            }
+                            name[i] = username;
+                            scoreList[i] = score;
+                            break;
+                        }
+                    }
                 }
             }
             for(int i = 0; i < 10; i++){

@@ -4,11 +4,8 @@ import java.awt.event.*;
 import java.util.*;
 import javax.swing.Timer;
 
-public class SnakeGame extends JPanel implements ActionListener, KeyListener{
-
-    private JFrame frame;
-    private String username;
-
+public class Mission extends JPanel implements ActionListener, KeyListener{
+    
     private class Tile {
         int x, y;
 
@@ -31,23 +28,27 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
     Random random; // 建立 random 物件
 
     // 讓遊戲不斷刷新
-    Timer gameloop;
-    int speed = 100;
+    Timer gameloop, sec, repaintTimer;
+    int speed = 85;
     int velocityX, velocityY;
     boolean gameover = false;
+    boolean win = false;
     boolean openGameoverFrame = false;
 
     Score score = new Score();
+    FruitCounter counter = new FruitCounter();
+    RandomMode mode = new RandomMode();
 
-    SnakeGame(String username, JFrame frame, int boardWidth, int boardHeight){
-        this.username = username;
-        this.frame = frame;
+    int[] mission = new int[5];
+
+    Mission(String username, JFrame frame, int boardWidth, int boardHeight){
         this.boardHeight = boardHeight;
         this.boardWidth = boardWidth;
         setPreferredSize(new Dimension(this.boardWidth, this.boardHeight));
-        setBackground(Color.BLACK);
+
         addKeyListener(this);
         setFocusable(true);
+        requestFocus();
 
         snakehead = new Tile((int)Math.sqrt(tileSize) , (int)Math.sqrt(tileSize) );
         snakebody = new ArrayList<Tile>();
@@ -59,14 +60,48 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
         velocityX = 0;
         velocityY = 1;
 
-        gameloop = new Timer(speed, this); // 100 ms
+        repaintTimer = new Timer(100, this);
+        repaintTimer.start();
+
+        gameloop = new Timer(speed, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                move(); // 更新蛇的位置
+                if(gameover){
+                    gameloop.stop();
+                    repaintTimer.stop();
+                    sec.stop();
+                    if(!openGameoverFrame) GameOverFrame.openGameOverFrame(username, 4, frame, win, score, mission, counter.getCounter(), boardWidth, boardHeight);
+                    openGameoverFrame = true;
+                }
+            }
+        });
         gameloop.start();
+
+        sec = new Timer(1000, new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                counter.addCounter();
+            }
+        });
+        sec.start();
+
+        RandomMission.randomMission();
+        mission = RandomMission.getMission();
     }
     public boolean collision(Tile tile1, Tile tile2){
         return tile1.x == tile2.x && tile1.y == tile2.y; // 確認兩點有沒有重疊
     }
+    @Override
     public void paintComponent(Graphics g){
         super.paintComponent(g);
+        try{
+            Image backgroundImage = new ImageIcon("MissionBackgroundImage.jpg").getImage(); //設置背景圖片
+            g.drawImage(backgroundImage, 0, 0, boardWidth, boardHeight, this);
+        }
+        catch(Exception e){
+            System.out.println("Error: " + e);
+        }
         draw(g);
     }
     public void draw(Graphics g){
@@ -75,8 +110,9 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
         //     g.drawLine(i * tileSize, 0, i * tileSize, boardHeight); // 垂直線
         //     g.drawLine(0, i * tileSize, boardWidth, i * tileSize); // 水平線
         // }
+
         // 畫出水果
-        g.setColor(new Color(238, 66, 102));
+        g.setColor(RandomMode.color[mode.getMode()]);
         g.fill3DRect(fruit.x * tileSize, fruit.y * tileSize, tileSize, tileSize, true);
 
         // 畫出 snakehead
@@ -91,36 +127,51 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
 
         // score
         g.setFont(new Font("Arial", Font.PLAIN, 16));
-        if(gameover){
+        if(gameover && win){
+            g.setColor(Color.green);
+            g.drawString("You Win!", tileSize, tileSize + 16);
+        }
+        else if(gameover){
             g.setColor(Color.red);
             g.drawString("Game Over: " + score.getScore(), tileSize, tileSize + 16);
         }
         else{
             g.setColor(new Color(22, 244, 208));
-            g.drawString("Score: " + score.getScore(), tileSize, tileSize + 16);
+            g.drawString("Total Time: " + counter.getCounter(), tileSize, tileSize + 16);
+            g.drawString(RandomMission.getMissionString(), tileSize, tileSize + 32);
         }
     }
 
     public void placeFruit(){
         fruit.x = random.nextInt(boardWidth / tileSize);
         fruit.y = random.nextInt(boardWidth / tileSize);
+        mode.setMode(); // 隨機設定水果顏色及遊戲模式
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-        move(); // 更新蛇的位置
         repaint(); // 不斷呼叫 draw 函式
-        if(gameover){
-            gameloop.stop();
-            if(!openGameoverFrame) GameOverFrame.openGameOverFrame(username, 1, frame, false, score, null, -1, boardWidth, boardHeight);
-            openGameoverFrame = true;
-        }
     }
     public void move(){
         if(collision(snakehead, fruit)){ // 如果蛇吃到水果
-            snakebody.add(new Tile(fruit.x, fruit.y));
-            score.addScore();
+            if(mission[mode.getMode()] == 0){
+                mission[mode.getMode()] = 1;
+            }
+            else{
+                mission[mode.getMode()]--;
+                snakebody.add(new Tile(fruit.x, fruit.y));
+            }
+            for(int i = 0; i < 5; i++){
+                if(mission[i] != 0){
+                    break;
+                }
+                if(i == 4){
+                    win = true;
+                    gameover = true;
+                }
+            }
             placeFruit();
         }
+
         // 先移動body再移動head，不然list[0]不知道要移動到哪裡
         // snakebody
         for(int i = snakebody.size() - 1 ; i >= 0 ; i--){
@@ -146,7 +197,7 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
         }
         
         //撞牆遊戲結束
-        if(snakehead.x * tileSize < 0 || snakehead.x * tileSize >= boardWidth || snakehead.y * tileSize < 0 || snakehead.y * tileSize >= boardHeight){
+        if(snakehead.x * tileSize < 0 || snakehead.x * tileSize >= boardWidth + tileSize || snakehead.y * tileSize < 0 || snakehead.y * tileSize >= boardHeight + tileSize){
             gameover = true;
         }
     }
@@ -154,6 +205,9 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
     public void keyTyped(KeyEvent e) {}
     @Override
     public void keyPressed(KeyEvent e) {
+        if(e.getKeyCode() == 32){
+            placeFruit();
+        }
         if(e.getKeyCode() == KeyEvent.VK_UP && velocityY != 1){
             velocityX = 0;
             velocityY = -1;

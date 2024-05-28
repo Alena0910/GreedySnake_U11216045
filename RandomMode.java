@@ -6,12 +6,12 @@ public class RandomMode {
     private static int mode;
     private static int fruitColor;
 
-    Color[] color = {
+    public static Color[] color = {
         new Color(193, 41, 46), // 紅色
-        new Color(247, 184, 1), // 橘黃色
-        new Color(241, 211, 2), // 黃色
+        new Color(238, 150, 75), // 橘色
+        new Color(255, 252, 49), // 黃色
         new Color(97, 226, 148), // 綠色
-        new Color(87, 226, 229), // 藍色
+        new Color(69, 74, 222), // 藍色
         new Color(69, 66, 90), // 紫色
         new Color(236, 145, 216), // 粉紅色
         new Color(156, 175, 183), // 淺藍色
